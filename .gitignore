@@ -71,3 +71,12 @@ Thumbs.db
 docs/html/
 docs/latex/
 docs/xml/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.VC.db
+*.VC.opendb
+# VSCode
+.vscode/
