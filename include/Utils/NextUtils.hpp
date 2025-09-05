@@ -3,22 +3,23 @@
 #include <cstddef> // size_t
 #include <vector>  // std::vector
 #include <array>   // std::array
+#include <stdexcept> // std::invalid_argument, std::out_of_range
 
 
 template <size_t N>
 using TensorStrideStatic = std::array<size_t, N>; // Stride of a tensor with static rank
 template <size_t N>
-using TensorShapeStatic = std::array<size_t, N>; // Shape of a tensor with static rank
+using TensorShapeStatic = std::array<size_t, N>;  // Shape of a tensor with static rank
 
-using TensorShapeDynamic = std::vector<size_t>; // Shape of a tensor with dynamic rank
-using TensorStrideDynamic = std::vector<size_t>; // Stride of a tensor with dynamic rank
+using TensorShapeDynamic = std::vector<size_t>;   // Shape of a tensor with dynamic rank
+using TensorStrideDynamic = std::vector<size_t>;  // Stride of a tensor with dynamic rank
 
-using TensorSize  = size_t;         
-            // Size of a tensor dimension
-using TensorIndex = size_t;                     // Index of a tensor element
+using TensorSize  = size_t;                       // Size of a tensor dimension
+using TensorIndex = size_t;                       // Index of a tensor element
+using TensorOffset = size_t;                      // Offset in the tensor's underlying data array
 template <size_t N>
-using TensorIndexStatic = std::array<size_t, N>; // Shape of a tensor with static rank
-using TensorIndexDynamic = std::vector<size_t>; // Shape of a tensor with dynamic rank
+using TensorIndexStatic = std::array<size_t, N>;  // Shape of a tensor with static rank
+using TensorIndexDynamic = std::vector<size_t>;   // Shape of a tensor with dynamic rank
 
 /** 
  * @namespace NextUtils
@@ -168,5 +169,15 @@ namespace NextUtils
             flatIndex %= strides[i];
         }
         return indices;
+    }
+
+    [[nodiscard]] inline void NextReverse(std::vector<size_t> &vec) noexcept {
+        size_t left = 0;
+        size_t right = vec.size() - 1;
+        while (left < right) {
+            std::swap(vec[left], vec[right]);
+            ++left;
+            --right;
+        }
     }
 }
