@@ -69,9 +69,9 @@ namespace NextShapeUtils
      * @return A new TensorMetadata object representing the permuted tensor.
      * @throws std::invalid_argument if the permutation is invalid.
      * **/
-    inline TensorMetadata NextPermute(const TensorMetadata &metadata, const TensorIndexDynamic &permutation = {}) {
-        TensorShapeDynamic originalShape = metadata.GetShape();
-        TensorStrideDynamic originalStrides = metadata.GetStrides();
+    inline TensorMetadata NextPermute(const TensorMetadata &Metadata, TensorIndexDynamic permutation = {}) {
+        TensorShapeDynamic originalShape = Metadata.GetShape();
+        TensorStrideDynamic originalStrides = Metadata.GetStrides();
 
         if (permutation.empty()) {
             // Case 1: Standard transpose (reverses the dimensions)
@@ -79,7 +79,7 @@ namespace NextShapeUtils
             TensorStrideDynamic newStrides = originalStrides;
             NextUtils::NextReverse(newShape);
             NextUtils::NextReverse(newStrides);
-            return TensorMetadata(newShape, newStrides, metadata.GetOffset());
+            return TensorMetadata(newShape, newStrides, Metadata.GetOffset());
         }
 
         // Case 2: Custom permutation
@@ -97,6 +97,74 @@ namespace NextShapeUtils
             newStrides[i] = originalStrides[newIndex];
         }
 
-        return TensorMetadata(newShape, newStrides, metadata.GetOffset());
+        return TensorMetadata(newShape, newStrides, Metadata.GetOffset());
+    }
+
+    /**
+     * @brief Transposes the dimensions of a tensor (alias for NextPermute with default behavior).
+     * @param metadata The metadata of the tensor.
+     * @return A new TensorMetadata object representing the transposed tensor.
+     * **/
+    inline TensorMetadata NextTranspose(const TensorMetadata &Metadata) {
+        return NextPermute(Metadata);
+    }
+
+    //TODO: Review and Optimize Squeeze and UnSqueeze Functions
+    /**
+     * @brief Squeezes the dimensions of a tensor by removing single-dimensional entries.
+     * @param metadata The metadata of the tensor.
+     * @param axes The specific axes to squeeze. If empty, all single-dimensional axes are removed.
+     * @return A new TensorMetadata object representing the squeezed tensor.
+     * @throws std::invalid_argument if any specified axis is out of bounds or not of size 1.
+     * **/
+    inline TensorMetadata NextSqueeze(const TensorMetadata &Metadata, TensorIndexDynamic axes = {}) {
+        // Check if valid axes are provided
+        if (!axes.empty()) {
+            TensorShapeDynamic newShape;
+            TensorStrideDynamic newStrides;
+            for (const auto &axis : axes) {
+                if (axis >= Metadata.GetRank()) {
+                    throw std::invalid_argument("Axis out of bounds.");
+                }
+                if (Metadata.GetShape()[axis] != 1) {
+                    throw std::invalid_argument("Cannot squeeze axis that is not of size 1.");
+                }
+                // Proceed to create new shape and strides
+                for (size_t i = 0; i < Metadata.GetRank(); i++) {
+                    if (i == axis) continue; // Skip the specified axis
+                    newShape.push_back(Metadata.GetShape()[i]);
+                }
+            }
+            return TensorMetadata(newShape, Metadata.GetOffset());
+        }
+        else {
+            TensorShapeDynamic newShape;
+            TensorStrideDynamic newStrides;
+            for (size_t i = 0; i < Metadata.GetRank(); i++) {
+                if (Metadata.GetShape()[i] == 1) continue; // Skip single-dimensional axes
+                newShape.push_back(Metadata.GetShape()[i]);
+            }
+            return TensorMetadata(newShape, Metadata.GetOffset());
+        }
+    }
+
+    /**
+     * @brief Unsqueezes the dimensions of a tensor by adding single-dimensional entries at specified axes.
+     * @param metadata The metadata of the tensor.
+     * @param axes The specific axes to unsqueeze.
+     * @return A new TensorMetadata object representing the unsqueezed tensor.
+     * @throws std::invalid_argument if any specified axis is out of bounds.
+     * **/
+    inline TensorMetadata NextUnsqueeze(const TensorMetadata &Metadata, const TensorIndexDynamic &axes) {
+        TensorShapeDynamic newShape = Metadata.GetShape();
+        TensorStrideDynamic newStrides = Metadata.GetStrides();
+
+        for (const auto &axis : axes) {
+            if (axis > newShape.size()) {
+                throw std::invalid_argument("Axis out of bounds.");
+            }
+            newShape.insert(newShape.begin() + axis, 1);
+        }
+        return TensorMetadata(newShape, Metadata.GetOffset());
     }
 }
