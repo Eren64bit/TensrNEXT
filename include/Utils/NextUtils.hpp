@@ -17,6 +17,7 @@ using TensorStrideDynamic = std::vector<size_t>;  // Stride of a tensor with dyn
 using TensorSize  = size_t;                       // Size of a tensor dimension
 using TensorIndex = size_t;                       // Index of a tensor element
 using TensorOffset = size_t;                      // Offset in the tensor's underlying data array
+using TensorRank = size_t;                        // Rank (number of dimensions) of a tensor
 template <size_t N>
 using TensorIndexStatic = std::array<size_t, N>;  // Shape of a tensor with static rank
 using TensorIndexDynamic = std::vector<size_t>;   // Shape of a tensor with dynamic rank
