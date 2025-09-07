@@ -5,36 +5,37 @@
 using TensorMetadata = NextMetadata::TensorMetadata;
 using DataType = NextTypes::DataType;
 
+
 namespace NextTensor
 {
     /** 
-     * @brief An interface class for tensors, providing common attributes like metadata and data type.
-     * Members : metadata_, dtype_
+     * @class TensorInterface
+     * @brief An interface for tensor operations, providing methods to access metadata, data type, and raw data.
+     * 
+     * This interface defines the essential operations that any tensor implementation must provide.
+     * It includes methods to retrieve tensor metadata, data type, and raw data pointers, as well as
+     * a method to convert multi-dimensional indices to a flat index.
+     * 
+     * Methods:
+     * - GetMetadata: Returns the metadata of the tensor (shape, strides, offset, etc.).
+     * - GetDataType: Returns the data type of the tensor elements.
+     * - GetRawData: Returns a mutable pointer to the raw data of the tensor.
+     * - GetRawData (const): Returns a const pointer to the raw data of the tensor for read-only access.
+     * - GetFlatIndex: Converts multi-dimensional indices to a flat index based on the tensor's strides.
+     * 
+     * Note: The actual implementation of these methods will depend on the specific tensor class that inherits from this interface.
      * **/
     class TensorInterface {
     public:
-        /** 
-         * @brief Constructs a TensorInterface object with the given shape, data type, and optional offset.
-         * @param shape The shape of the tensor.
-         * @param dtype The data type of the tensor elements.
-         * @param offset The offset in the underlying data array (default is 0).
-         * @return A TensorInterface object initialized with the given shape, data type, and offset.
-         * **/
-        TensorInterface(const TensorShapeDynamic &shape, DataType dtype, TensorOffset offset = 0) noexcept
-            : metadata_(shape, offset) , dtype_(dtype) {}
-            
-        /** 
-         * @brief Constructs a TensorInterface object with the given metadata and data type.
-         * @param metadata The metadata of the tensor.
-         * @param dtype The data type of the tensor elements.
-         * @return A TensorInterface object initialized with the given metadata and data type.
-         * **/
-        TensorInterface(const TensorMetadata &metadata, DataType dtype) noexcept : metadata_(metadata), dtype_(dtype){}
-
         virtual ~TensorInterface() = default;
-    protected:
-        TensorMetadata metadata_; // Metadata of the tensor (shape, strides, offset, etc.)
-        DataType dtype_;          // Data type of the tensor elements (e.g., float32, int64, etc.)
+
+        [[nodiscard]] virtual const TensorMetadata &GetMetadata() const noexcept = 0; // Metadata is immutable
+
+        [[nodiscard]] virtual DataType GetDataType() const noexcept = 0; // DataType is immutable
+
+        virtual void *GetRawData() noexcept = 0; // Raw data pointer is mutable
+
+        [[nodiscard]] virtual const void *GetRawData() const noexcept = 0; // Const version for read-only access
     };
 
 }
