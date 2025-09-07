@@ -1,5 +1,7 @@
 #pragma once
 #include <cstddef> // size_t
+#include <type_traits> // is_same_v<>
+#include <cstdint>
 
 namespace NextTypes
 {
@@ -45,5 +47,19 @@ namespace NextTypes
             case DataType::BOOL:    return 1; // Typically stored as a byte
             default:                return 0; // Unknown type
         }
+    }
+
+    template <typename T>
+    inline DataType GetDTypeFromTemplate() {
+        if (std::is_same_v<T, float>) return DataType::FLOAT32;
+        if (std::is_same_v<T, double>) return DataType::FLOAT64;
+        if (std::is_same_v<T, int8_t>) return DataType::INT8;
+        if (std::is_same_v<T, int16_t>) return DataType::INT16;
+        if (std::is_same_v<T, int>) return DataType::INT32;
+        if (std::is_same_v<T, long>) return DataType::INT64;
+        if (std::is_same_v<T, uint8_t>) return DataType::UINT8;
+        if (std::is_same_v<T, uint16_t>) return DataType::UINT16;
+        if (std::is_same_v<T, uint32_t>) return DataType::UINT32;
+        if (std::is_same_v<T, uint64_t>) return DataType::UINT64;
     }
 }
